@@ -17,34 +17,56 @@ class ViewController: UIViewController {
   @IBOutlet weak var imageTrailingEdge: NSLayoutConstraint!
   @IBOutlet weak var imageTopEdge: NSLayoutConstraint!
   @IBOutlet weak var imageBottomEdge: NSLayoutConstraint!
-  
   @IBOutlet weak var collectionBottomEdge: NSLayoutConstraint!
-  
   @IBOutlet weak var collectionView: UICollectionView!
+  
+  let kImageLeadingEdgeConstantAdjustment : CGFloat = 40
+  let kImageTrailingEdgeConstantAdjustment : CGFloat = -40
+  let kImageTopEdgeConstantAdjustment : CGFloat = 40
+  let kImageBottomEdgeConstantAdjustment : CGFloat = 70
+  let kCollectionBottomEdgeConstantAdjustment : CGFloat = 8
+  
+  let kImageLeadingEdgeOriginalConstant: CGFloat = 0
+  let kImageTrailingEdgeOriginalConstant : CGFloat = 0
+  let kImageTopEdgeOriginalConstant : CGFloat = 8
+  let kImageBottomEdgeOriginalConstant : CGFloat = 8
+  let kCollectionBottomEdgeOriginalConstant : CGFloat = -150
+  
+  let kThumbnailSize = CGSize(width: 100, height: 100)
   let picker: UIImagePickerController = UIImagePickerController()
   var originalImage : UIImage? = nil
   var doneButton = UIBarButtonItem()
+  var thumbnail : UIImage!
+  let imageQueue = NSOperationQueue()
+  var filters : [(UIImage) -> (UIImage?)] = [FilterService.sepiaImageFromOriginalImage, FilterService.noirImageFromOriginalImage, FilterService.chromeImageFromOriginalImage, FilterService.bloomImageFromOriginalImage, FilterService.instantFadeImageFromOriginalImage]
   
-  var filters : [(UIImage) -> (UIImage?)] = [FilterService.sepiaImageFromOriginalImage]
+  var displayImage : UIImage! {
+    didSet {
+      chosenImageView.image = displayImage
+      originalImage = chosenImageView.image
+      thumbnail = ImageResizer.resizeImage(chosenImageView.image!, size: kThumbnailSize)
+      thumbnail = displayImage
+      collectionView.reloadData()
+    }
+  }
   
   //Mark: Action Sheets
-  let alert = UIAlertController(title: "Button Clicked", message: "Yes the button was clicked", preferredStyle: UIAlertControllerStyle.ActionSheet)
-  
+  let alert = UIAlertController(title: nil, message: nil, preferredStyle: UIAlertControllerStyle.ActionSheet)
   let imageSelector = UIAlertController(title: "Image Source", message: "Select image from: ", preferredStyle: UIAlertControllerStyle.ActionSheet)
-  
   let filterSelector = UIAlertController(title: "Filters", message: "Apply a filter: ", preferredStyle: UIAlertControllerStyle.ActionSheet)
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    self.picker.delegate = self
+    picker.delegate = self
     collectionView.dataSource = self //?
     collectionView.delegate = self
-    doneButton.title = ""
+    doneButton.title = " "
+    title = "Home"
     // Do any additional setup after loading the view, typically from a nib.
+    chosenImageView.image = UIImage(named: "placeholder.jpeg")
     
     //Create instances of the actions
     let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel) { (alert) -> (Void) in
-      println("Alert Cancelled")
     }
     
     //Mark: Choosing Image Source Menu
@@ -55,37 +77,22 @@ class ViewController: UIViewController {
     let chooseImageFromPhotoLibrary = UIAlertAction(title: "Photo Library", style: UIAlertActionStyle.Default) { (alert) -> (Void) in
       self.picker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
       self.presentViewController(self.picker, animated: true, completion: nil)
-      println("Alert Confirmed")
     }
     
- //   if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera) {
-      let chooseImageFromCamera = UIAlertAction(title: "Camera", style: UIAlertActionStyle.Default) { (alert) -> (Void) in
-        //Should check if camera exists on device.
-        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera) {
-          self.picker.sourceType = UIImagePickerControllerSourceType.Camera //Choose the source type
-          self.presentViewController(self.picker, animated: true, completion: nil) //Present the camera
-        }
+    let galleryAction = UIAlertAction(title: "Gallery", style: UIAlertActionStyle.Default) { (alert) -> Void in
+      self.performSegueWithIdentifier("ShowGallery", sender: self)
+    }
+    
+    //If the device has access to a camera, then it can take a picture for its image.
+    let chooseImageFromCamera = UIAlertAction(title: "Camera", style: UIAlertActionStyle.Default) { (alert) -> (Void) in
+      if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera) {
+        self.picker.sourceType = UIImagePickerControllerSourceType.Camera //Choose the source type
+        self.presentViewController(self.picker, animated: true, completion: nil) //Present the camera
       }
-//    }
-
+    }
+    
     let uploadAction = UIAlertAction(title: "Upload", style: UIAlertActionStyle.Default) { (alert) -> Void in
-      let post = PFObject(className: "Post")
-      //create a text field for entering text? save the text somehow from the object in SB?
-      
-      if let image = self.chosenImageView.image {
-        let resizeDimensions = CGSize(width: 600, height: 600)
-        let resizedImage = ImageResizer.resizeImage(image, size: resizeDimensions)
-        let data = UIImageJPEGRepresentation(resizedImage, 1.0)
-        let file = PFFile(name: "photo.jpeg", data: data)
-        post["image"] = file
-      }
-      post.saveInBackgroundWithBlock({ (succeeded, error) -> Void in
-        if let error = error {
-          println(error.localizedDescription)
-        } else {
-          println("Success!")
-        }
-      })
+      self.performSegueWithIdentifier("ShowCommentField", sender: self)
     }
     
     let revert = UIAlertAction(title: "Revert Changes", style: UIAlertActionStyle.Destructive) {
@@ -93,94 +100,50 @@ class ViewController: UIViewController {
       self.chosenImageView.image = self.originalImage
     }
     
-    //Mark: Filters via UIAlert Actions
-    let filterAction = UIAlertAction(title: "Filters", style: UIAlertActionStyle.Default) { (alert) -> (Void) in
-      self.presentViewController(self.filterSelector, animated: true, completion: nil)
-    }
-    
-    let sepiaAction = UIAlertAction(title: "Sepia", style: UIAlertActionStyle.Default) {
-      (alert) -> (Void) in
-//      let image = CIImage(image: self.chosenImageView.image!)
-//      let sepiaFilter = CIFilter(name: "CISepiaTone")
-//      sepiaFilter.setValue(image, forKey: kCIInputImageKey)
-//      let processedImage = FilterService.filterProcess(sepiaFilter)
-//      self.chosenImageView.image = processedImage
-      self.chosenImageView.image = FilterService.sepiaImageFromOriginalImage(self.chosenImageView.image!)
-    }
-    
-    let noirAction = UIAlertAction(title: "Noir", style: UIAlertActionStyle.Default) { (alert) -> Void in
-      let image = CIImage(image: self.chosenImageView.image!)
-      let noirFilter = CIFilter(name: "CIPhotoEffectNoir")
-      noirFilter.setValue(image, forKey: kCIInputImageKey)
-      let processedImage = FilterService.filterProcess(noirFilter)
-      self.chosenImageView.image = processedImage
-    }
-    
-    let chromeAction = UIAlertAction(title: "Chrome Effect", style: UIAlertActionStyle.Default) { (alert) -> Void in
-      let image = CIImage(image: self.chosenImageView.image!)
-      let chromeFilter = CIFilter(name: "CIPhotoEffectChrome")
-      chromeFilter.setValue(image, forKey: kCIInputImageKey)
-      let processedImage = FilterService.filterProcess(chromeFilter)
-      self.chosenImageView.image = processedImage
-    }
-    
-    let bloomAction = UIAlertAction(title: "Bloom Effect", style: UIAlertActionStyle.Default) { (alert) -> Void in
-      let image = CIImage(image: self.chosenImageView.image!)
-      let bloomFilter = CIFilter(name: "CIBloom", withInputParameters: ["inputRadius" : 10.0, "inputIntensity" : 1.00])
-      bloomFilter.setValue(image, forKey: kCIInputImageKey)
-      let processedImage = FilterService.filterProcess(bloomFilter)
-      self.chosenImageView.image = processedImage
-    }
+
     
     //Entering filter mode
     if UIDevice.currentDevice().userInterfaceIdiom == .Phone {
-      
       let filterAction = UIAlertAction(title: "Filter", style: UIAlertActionStyle.Default) { (alert) -> Void in
         self.enterFilterMode()
       }
-      
       alert.addAction(filterAction)
     }
+    
+    displayImage = UIImage(named: "placeholder.jpeg")
     
     //Mark: Adding actions to alert pop up.
     alert.addAction(cancelAction)
     alert.addAction(uploadAction)
     alert.addAction(chooseImageSource)
-    alert.addAction(filterAction)
-    filterSelector.addAction(cancelAction)
-    filterSelector.addAction(sepiaAction)
-    filterSelector.addAction(noirAction)
-    filterSelector.addAction(chromeAction)
-    filterSelector.addAction(bloomAction)
-    filterSelector.addAction(revert)
+    alert.addAction(revert)
     imageSelector.addAction(cancelAction)
+    imageSelector.addAction(galleryAction)
     imageSelector.addAction(chooseImageFromPhotoLibrary)
     imageSelector.addAction(chooseImageFromCamera)
   }
   
   func enterFilterMode() {
-    imageLeadingEdge.constant = 40
-    imageTrailingEdge.constant = -40
-    imageTopEdge.constant = 40
-    imageBottomEdge.constant = 70
-    collectionBottomEdge.constant = 8
-    
+    imageLeadingEdge.constant = kImageLeadingEdgeConstantAdjustment
+    imageTrailingEdge.constant = kImageTrailingEdgeConstantAdjustment
+    imageTopEdge.constant = kImageTopEdgeConstantAdjustment
+    imageBottomEdge.constant = kImageBottomEdgeConstantAdjustment
+    collectionBottomEdge.constant = kCollectionBottomEdgeConstantAdjustment
     UIView.animateWithDuration(0.3, animations: { () -> Void in
       self.view.layoutIfNeeded()
     })
-    
     self.doneButton = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Done, target: self, action: "closeFilterMode")
     navigationItem.rightBarButtonItem = doneButton
   }
   
   func closeFilterMode() {
-    imageLeadingEdge.constant = 0
-    imageTrailingEdge.constant = 0
-    imageTopEdge.constant = 8
-    imageBottomEdge.constant = 8
-    collectionBottomEdge.constant = -150
-    doneButton.title = ""
-
+    imageLeadingEdge.constant = kImageLeadingEdgeOriginalConstant
+    imageTrailingEdge.constant = kImageTrailingEdgeOriginalConstant
+    imageTopEdge.constant = kImageTopEdgeOriginalConstant
+    imageBottomEdge.constant = kImageBottomEdgeOriginalConstant
+    collectionBottomEdge.constant = kCollectionBottomEdgeOriginalConstant
+    doneButton.title = " "
+    
     UIView.animateWithDuration(0.3, animations: { () -> Void in
       self.view.layoutIfNeeded()
     })
@@ -189,6 +152,21 @@ class ViewController: UIViewController {
   override func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
     // Dispose of any resources that can be recreated.
+  }
+  
+  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    if segue.identifier == "ShowGallery" {
+      if let galleryViewController = segue.destinationViewController as? GalleryViewController {
+        galleryViewController.delegate = self
+        galleryViewController.desiredFinalImageSize = chosenImageView.frame.size
+      }
+    }
+    
+    if segue.identifier == "ShowCommentField" {
+      if let textFieldController = segue.destinationViewController as? TextFieldViewController {
+        textFieldController.imageReference = self.chosenImageView.image
+      }
+    }
   }
   
   @IBAction func actionButtonPressed(sender: AnyObject) {
@@ -205,8 +183,7 @@ class ViewController: UIViewController {
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
     let image: UIImage = (info[UIImagePickerControllerOriginalImage] as? UIImage)!
-    //imageview set
-    self.chosenImageView.image = image
+    displayImage = image
     self.originalImage = image
     self.picker.dismissViewControllerAnimated(true, completion: nil)
   }
@@ -218,20 +195,39 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
   
 }
 
+//Mark: UICollectionViewDataSource and UICollectionViewDelegate
 extension ViewController : UICollectionViewDataSource, UICollectionViewDelegate {
+  
   func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
- //   return 20 //change it
     return filters.count
   }
   
   func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-    let cell = collectionView.dequeueReusableCellWithReuseIdentifier("ThumbnailCell", forIndexPath: indexPath) as! UICollectionViewCell
+    let cell = collectionView.dequeueReusableCellWithReuseIdentifier("ThumbnailCell", forIndexPath: indexPath) as! ThumbnailCell
+    cell.filterPreview.image = nil
     let filter = filters[indexPath.row] //Retrieve the function for the appropriate filter
-    if let image = chosenImageView.image {
-      let filteredImage = filter(chosenImageView.image!)
+    cell.tag++
+    let tag = cell.tag
+    imageQueue.addOperationWithBlock { () -> Void in
+      let filteredImage = filter(self.thumbnail)
+      NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+        if cell.tag == tag {
+          cell.filterPreview.image = filteredImage
+        }
+      })
     }
-    
-    cell.backgroundColor = UIColor.redColor()
     return cell
+  }
+  
+  func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    let filter = filters[indexPath.item]
+    chosenImageView.image = filter(displayImage)
+  }
+}
+
+//Mark: ImageSelectedDelegate Protocol
+extension ViewController : ImageSelectedDelegate {
+  func controllerDidSelectImage(newImage: UIImage) {
+    displayImage = newImage
   }
 }

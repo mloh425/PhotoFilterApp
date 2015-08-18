@@ -7,10 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		346E2C301B7A83A300160388 /* ImageStackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346E2C2F1B7A83A300160388 /* ImageStackManager.swift */; };
+		3420445E1B7D802C000D717C /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3420445D1B7D802C000D717C /* GalleryViewController.swift */; };
+		342044601B7E81F3000D717C /* TextFieldViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3420445F1B7E81F3000D717C /* TextFieldViewController.swift */; };
 		346E2C321B7AB2FC00160388 /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346E2C311B7AB2FC00160388 /* Keys.swift */; };
-		346E2C341B7BAC4700160388 /* TimeLineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346E2C331B7BAC4700160388 /* TimeLineViewController.swift */; };
 		346E2C361B7BBB5100160388 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346E2C351B7BBB5100160388 /* ImageResizer.swift */; };
+		346E2C3B1B7D01B300160388 /* ThumbnailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346E2C3A1B7D01B300160388 /* ThumbnailCell.swift */; };
+		346E2C411B7D10E400160388 /* placeholder.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 346E2C401B7D10E400160388 /* placeholder.jpeg */; };
+		346E2C471B7D640000160388 /* TimeLineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346E2C461B7D640000160388 /* TimeLineViewController.swift */; };
+		346E2C491B7D666F00160388 /* TimeLineCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346E2C481B7D666F00160388 /* TimeLineCell.swift */; };
 		34D8CD481B7A57050088BFF2 /* FilterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D8CD471B7A57050088BFF2 /* FilterService.swift */; };
 		81BA814B1A49DA1800E65899 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BA814A1A49DA1800E65899 /* AppDelegate.swift */; };
 		81BA814D1A49DA1800E65899 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BA814C1A49DA1800E65899 /* ViewController.swift */; };
@@ -28,10 +32,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		346E2C2F1B7A83A300160388 /* ImageStackManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageStackManager.swift; sourceTree = "<group>"; };
+		3420445D1B7D802C000D717C /* GalleryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GalleryViewController.swift; path = ../GalleryViewController.swift; sourceTree = "<group>"; };
+		3420445F1B7E81F3000D717C /* TextFieldViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFieldViewController.swift; sourceTree = "<group>"; };
 		346E2C311B7AB2FC00160388 /* Keys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
-		346E2C331B7BAC4700160388 /* TimeLineViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeLineViewController.swift; sourceTree = "<group>"; };
 		346E2C351B7BBB5100160388 /* ImageResizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
+		346E2C3A1B7D01B300160388 /* ThumbnailCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThumbnailCell.swift; sourceTree = "<group>"; };
+		346E2C401B7D10E400160388 /* placeholder.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = placeholder.jpeg; sourceTree = "<group>"; };
+		346E2C461B7D640000160388 /* TimeLineViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeLineViewController.swift; sourceTree = "<group>"; };
+		346E2C481B7D666F00160388 /* TimeLineCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeLineCell.swift; sourceTree = "<group>"; };
 		34D8CD471B7A57050088BFF2 /* FilterService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterService.swift; sourceTree = "<group>"; };
 		81BA81451A49DA1800E65899 /* ParseStarterProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ParseStarterProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		81BA81491A49DA1800E65899 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -76,17 +84,28 @@
 			children = (
 				34D8CD471B7A57050088BFF2 /* FilterService.swift */,
 				346E2C351B7BBB5100160388 /* ImageResizer.swift */,
-				346E2C2F1B7A83A300160388 /* ImageStackManager.swift */,
 				346E2C311B7AB2FC00160388 /* Keys.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
 		};
+		346E2C391B7D019C00160388 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				346E2C481B7D666F00160388 /* TimeLineCell.swift */,
+				346E2C3A1B7D01B300160388 /* ThumbnailCell.swift */,
+				81BA814E1A49DA1800E65899 /* Main.storyboard */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
 		34D8CD491B7A57160088BFF2 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				346E2C461B7D640000160388 /* TimeLineViewController.swift */,
 				81BA814C1A49DA1800E65899 /* ViewController.swift */,
-				346E2C331B7BAC4700160388 /* TimeLineViewController.swift */,
+				3420445D1B7D802C000D717C /* GalleryViewController.swift */,
+				3420445F1B7E81F3000D717C /* TextFieldViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -114,7 +133,7 @@
 				81BA814A1A49DA1800E65899 /* AppDelegate.swift */,
 				34D8CD491B7A57160088BFF2 /* Controller */,
 				346E2C2E1B7A81B700160388 /* Model */,
-				81BA814E1A49DA1800E65899 /* Main.storyboard */,
+				346E2C391B7D019C00160388 /* View */,
 				81BA81511A49DA1800E65899 /* Images.xcassets */,
 				81BA81481A49DA1800E65899 /* Supporting Files */,
 			);
@@ -125,6 +144,7 @@
 			isa = PBXGroup;
 			children = (
 				81BA81491A49DA1800E65899 /* Info.plist */,
+				346E2C401B7D10E400160388 /* placeholder.jpeg */,
 				81BA81821A49E27F00E65899 /* ParseStarterProject-Bridging-Header.h */,
 			);
 			name = "Supporting Files";
@@ -213,6 +233,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				346E2C411B7D10E400160388 /* placeholder.jpeg in Resources */,
 				81BA81501A49DA1800E65899 /* Main.storyboard in Resources */,
 				81BA81521A49DA1800E65899 /* Images.xcassets in Resources */,
 			);
@@ -244,11 +265,14 @@
 			files = (
 				34D8CD481B7A57050088BFF2 /* FilterService.swift in Sources */,
 				81BA814D1A49DA1800E65899 /* ViewController.swift in Sources */,
+				346E2C3B1B7D01B300160388 /* ThumbnailCell.swift in Sources */,
 				346E2C361B7BBB5100160388 /* ImageResizer.swift in Sources */,
-				346E2C301B7A83A300160388 /* ImageStackManager.swift in Sources */,
 				81BA814B1A49DA1800E65899 /* AppDelegate.swift in Sources */,
 				346E2C321B7AB2FC00160388 /* Keys.swift in Sources */,
-				346E2C341B7BAC4700160388 /* TimeLineViewController.swift in Sources */,
+				342044601B7E81F3000D717C /* TextFieldViewController.swift in Sources */,
+				3420445E1B7D802C000D717C /* GalleryViewController.swift in Sources */,
+				346E2C491B7D666F00160388 /* TimeLineCell.swift in Sources */,
+				346E2C471B7D640000160388 /* TimeLineViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
